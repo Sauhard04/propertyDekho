@@ -1,0 +1,326 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { getProperties, deleteProperty } from '../services/api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './PropertyList.css';
+
+function PropertyList() {
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [filterType, setFilterType] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [propertiesPerPage] = useState(6);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const searchRef = useRef(null);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Handle search input focus
+  const handleSearchFocus = () => {
+    if (searchTerm.trim() !== '') {
+      setShowSearchResults(true);
+    }
+  };
+
+  // Handle search term change
+  const handleSearchChange = (e) => {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+    setShowSearchResults(newSearchTerm.trim() !== '');
+    setCurrentPage(1);
+    
+    // Update URL
+    const params = new URLSearchParams(location.search);
+    if (newSearchTerm.trim()) {
+      params.set('search', newSearchTerm);
+    } else {
+      params.delete('search');
+    }
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  // Fetch properties from API
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setLoading(true);
+        const response = await getProperties();
+        setProperties(response.data);
+      } catch (err) {
+        console.error('Error fetching properties:', err);
+        setError('Failed to load properties. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
+  // Delete property
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this property?')) {
+      try {
+        await deleteProperty(id);
+        setProperties(properties.filter(property => property._id !== id));
+        toast.success('Property deleted successfully!');
+      } catch (err) {
+        console.error('Error deleting property:', err);
+        toast.error('Failed to delete property. Please try again.');
+      }
+    }
+  };
+
+  // Filter properties based on search and filters
+  const filteredProperties = properties.filter(property => {
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = property.title?.toLowerCase().includes(searchLower) ||
+                         property.location?.toLowerCase().includes(searchLower) ||
+                         property.type?.toLowerCase().includes(searchLower) ||
+                         property.status?.toLowerCase().includes(searchLower);
+    const matchesStatus = filterStatus === 'All' || property.status === filterStatus;
+    const matchesType = filterType === 'All' || property.type === filterType;
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  // Get search results for dropdown (limit to 5)
+  const searchResults = searchTerm.trim() !== '' 
+    ? properties.filter(property => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          property.title?.toLowerCase().includes(searchLower) ||
+          property.location?.toLowerCase().includes(searchLower) ||
+          property.type?.toLowerCase().includes(searchLower) ||
+          property.status?.toLowerCase().includes(searchLower)
+        );
+      }).slice(0, 5)
+    : [];
+
+  // Get current properties for pagination
+  const indexOfLastProperty = currentPage * propertiesPerPage;
+  const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
+  const currentProperties = filteredProperties.slice(indexOfFirstProperty, indexOfLastProperty);
+  const totalPages = Math.ceil(filteredProperties.length / propertiesPerPage);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+
+  // Get status badge class
+  const getStatusBadgeClass = (status) => {
+    if (!status) return 'status-badge';
+    const statusLower = status.toLowerCase().replace(' ', '-');
+    return `status-badge status-${statusLower}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="property-list-container">
+        <div className="property-background"></div>
+        <div className="content-overlay">
+          <div className="property-list">
+            <h2>Property Listings</h2>
+            <div className="loading">Loading properties...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="property-list-container">
+        <div className="property-background"></div>
+        <div className="content-overlay">
+          <div className="property-list">
+            <h2>Property Listings</h2>
+            <div className="error-message">{error}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="property-list-container">
+      <div className="property-background"></div>
+      <div className="content-overlay">
+        <div className="property-list">
+      <div className="property-list-header">
+        <h2>Properties</h2>
+        <Link to="/properties/add" className="add-property-btn">
+          Add Property
+        </Link>
+      </div>
+      
+      {/* Filters and Search */}
+      <div className="property-filters">
+        <div className="search-box" ref={searchRef}>
+          <input
+            type="text"
+            placeholder="Search properties..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onFocus={handleSearchFocus}
+            className="search-input"
+          />
+          <i className="search-icon">🔍</i>
+          {showSearchResults && searchResults.length > 0 && (
+            <div className="search-results">
+              {searchResults.map((property) => (
+                <div 
+                  key={property._id} 
+                  className="search-result-item"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setShowSearchResults(false);
+                    navigate(`/properties/${property._id}`);
+                  }}
+                >
+                  <div className="search-result-title">{property.title}</div>
+                  <div className="search-result-meta">
+                    <span>{property.location}</span>
+                    <span>{property.type}</span>
+                    <span className={`status-badge ${property.status.toLowerCase().replace(' ', '-')}`}>
+                      {property.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div className="filter-group">
+          <label>Status:</label>
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="All">All Status</option>
+            <option value="Available">Available</option>
+            <option value="Under Negotiation">Under Negotiation</option>
+            <option value="Sold">Sold</option>
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>Type:</label>
+          <select 
+            value={filterType} 
+            onChange={(e) => setFilterType(e.target.value)}
+          >
+            <option value="All">All Types</option>
+            <option value="Plot">Plot</option>
+            <option value="Flat">Flat</option>
+            <option value="Commercial">Commercial</option>
+          </select>
+        </div>
+      </div>
+      
+      {/* Property Grid */}
+      {filteredProperties.length === 0 ? (
+        <div className="no-results">
+          <p>No properties found matching your criteria.</p>
+        </div>
+      ) : (
+        <div className="property-grid">
+          {currentProperties.map((property) => (
+            <div key={property._id} className="property-card">
+              <img 
+                src={property.image || 'https://via.placeholder.com/300x200?text=No+Image'} 
+                alt={property.title} 
+                className="property-image"
+              />
+              <div className="property-info">
+                <h3>{property.title}</h3>
+                <p className="property-location">{property.location}</p>
+                <div className="property-meta">
+                  <span className={`status-badge ${property.status.toLowerCase().replace(' ', '-')}`}>
+                    {property.status}
+                  </span>
+                  <span className="property-type">{property.type}</span>
+                  <span className="property-size">{property.size} sq.ft</span>
+                  <span className="property-price">₹{property.price?.toLocaleString()}</span>
+                </div>
+                <div className="property-actions">
+                  <button 
+                    onClick={() => navigate(`/properties/${property._id}`)}
+                    className="view-details-btn"
+                  >
+                    View Details
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(property._id)}
+                    className="delete-btn"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {/* Pagination */}
+      {filteredProperties.length > propertiesPerPage && (
+        <div className="pagination">
+          <button 
+            onClick={prevPage} 
+            disabled={currentPage === 1}
+            className="pagination-button"
+            aria-label="Previous page"
+          >
+            &laquo;
+          </button>
+          
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+            <button
+              key={number}
+              onClick={() => paginate(number)}
+              className={`pagination-button ${currentPage === number ? 'active' : ''}`}
+              aria-label={`Page ${number}`}
+              aria-current={currentPage === number ? 'page' : null}
+            >
+              {number}
+            </button>
+          ))}
+          
+          <button 
+            onClick={nextPage} 
+            disabled={currentPage === totalPages}
+            className="pagination-button"
+            aria-label="Next page"
+          >
+            &raquo;
+          </button>
+        </div>
+      )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PropertyList;
