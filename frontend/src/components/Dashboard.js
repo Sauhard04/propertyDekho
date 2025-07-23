@@ -127,32 +127,26 @@ function Dashboard() {
       </div>
       
       <div className="video-background">
-       
-<video 
-  ref={videoRef}
-  autoPlay 
-  muted 
-  loop 
-  playsInline
-  id="bg-video"
-  preload="metadata"
-  style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    transform: 'none',
-    zIndex: -1,
-    objectFit: 'cover'
-  }}
->
-  <source 
-    src="/videos/rotatevideo.mp4" 
-    type="video/mp4" 
-  />
-
-</video>
+        <video 
+          ref={videoRef}
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          id="bg-video"
+          preload="auto"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            transform: 'none',
+            zIndex: -1,
+            objectFit: 'cover'
+          }}
+          src="/videos/rotatevideo.mp4"
+        />
       </div>
     </div>
   );
