@@ -145,7 +145,7 @@ function Dashboard() {
             zIndex: -1,
             objectFit: 'cover'
           }}
-          src="/videos/rotatevideo.mp4"
+          src="https://res.cloudinary.com/drazyyxbr/video/upload/v1753329214/rotatevideo_txpdnr.mp4"
         />
       </div>
     </div>
