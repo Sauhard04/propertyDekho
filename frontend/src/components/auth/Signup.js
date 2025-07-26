@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
+import api from '../../services/api'; 
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -46,62 +47,44 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     setError('');
 
     if (!validateEmail(email)) {
       setError('Please enter a valid email address');
+      setIsLoading(false);
       return;
     }
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters long');
+      setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
-
     try {
       console.log('Attempting registration with:', { name, email });
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
-        credentials: 'include',
+      const response = await api.post('/auth/register', {
+        name,
+        email,
+        password,
+        role: 'user' // or 'admin' if needed
       });
-
-      let data;
-      const contentType = response.headers.get('content-type');
       
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error('Server returned an invalid response');
-      }
+      // Handle successful registration
+      console.log('Registration successful:', response.data);
       
-      if (!response.ok) {
-        throw new Error(data.message || `Registration failed with status ${response.status}`);
-      }
-      
-      // Show success message and redirect to login
-      alert('Registration successful! Please log in.');
-      console.log('Registration successful, redirecting to login');
+      // Redirect to login page or auto-login
       navigate('/login');
     } catch (err) {
-      console.error('Signup error details:', {
-        message: err.message,
-        name: err.name,
-        stack: err.stack,
-      });
-      setError(err.message || 'An error occurred during registration. Please try again.');
+      console.error('Registration error:', err);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

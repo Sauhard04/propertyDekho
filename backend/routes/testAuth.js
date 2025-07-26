@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { register, login, getMe, logout } = require('../controllers/testAuth');
 
 // Public routes

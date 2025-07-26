@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
+import api from '../../services/api'; // Fixed import path
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -40,63 +41,22 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-    
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
-    
     setIsLoading(true);
-    
+    setError('');
+
     try {
       console.log('Attempting login with:', { email });
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
-      });
-
-      let data;
-      const contentType = response.headers.get('content-type');
+      const response = await api.post('/auth/login', { email, password });
       
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error('Server returned an invalid response');
-      }
+      // Handle successful login
+      console.log('Login successful:', response.data);
+      localStorage.setItem('token', response.data.token);
       
-      if (!response.ok) {
-        throw new Error(data.message || `Login failed with status ${response.status}`);
-      }
-      
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        if (data.user) {
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
-        console.log('Login successful, redirecting to dashboard');
-        navigate('/dashboard');
-      } else {
-        throw new Error('No authentication token received');
-      }
+      // Redirect to dashboard or home page
+      navigate('/dashboard');
     } catch (err) {
-      console.error('Login error details:', {
-        message: err.message,
-        name: err.name,
-        stack: err.stack,
-      });
-      setError(err.message || 'An error occurred during login. Please try again.');
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

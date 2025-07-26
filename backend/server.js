@@ -36,17 +36,23 @@ app.use(express.urlencoded({
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: true, // Allow all origins in development
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
   credentials: true,
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
 
 // Handle preflight requests
 app.options('*', cors(corsOptions));
+
+// Log all requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -94,7 +100,13 @@ connectDB();
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+// Test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ success: true, message: 'API is working!' });
+});
+
 // Routes
+app.use('/api', require('./routes/test'));  // Test route
 app.use('/api/auth', require('./routes/testAuth'));  // Using test auth routes
 app.use('/api/properties', require('./routes/properties'));
 app.use('/api/clients', require('./routes/clients'));

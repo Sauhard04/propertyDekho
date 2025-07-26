@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './ClientDetails.css';
+import api from '../../services/api';
 
 const ClientDetails = () => {
   const { id } = useParams();
@@ -11,33 +12,10 @@ const ClientDetails = () => {
   const [activeTab, setActiveTab] = useState('details');
 
   useEffect(() => {
-    // In a real app, you would fetch the client data using the id
     const fetchClient = async () => {
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Mock data - in a real app, this would come from your API
-        const mockClient = {
-          id: id,
-          name: 'John Doe',
-          email: 'john@example.com',
-          phone: '(123) 456-7890',
-          type: 'Buyer',
-          status: 'Active',
-          address: '123 Main St, New York, NY 10001',
-          notes: 'Interested in properties with 3+ bedrooms and a backyard.',
-          budget: '$800,000 - $1,200,000',
-          preferredLocations: ['Manhattan', 'Brooklyn'],
-          timeline: '3-6 months',
-          lastContact: '2023-05-15',
-          propertiesViewed: [
-            { id: 1, address: '456 Park Ave, New York, NY', date: '2023-05-10', status: 'Interested' },
-            { id: 2, address: '789 Broadway, New York, NY', date: '2023-04-28', status: 'Not Interested' }
-          ]
-        };
-        
-        setClient(mockClient);
+        const response = await api.get(`/clients/${id}`);
+        setClient(response.data);
       } catch (err) {
         console.error('Error fetching client:', err);
         toast.error('Failed to load client details');
@@ -55,37 +33,9 @@ const ClientDetails = () => {
       return;
     }
 
-    console.log('Starting delete operation for client ID:', id);
-    
     try {
-      console.log('Sending DELETE request to:', `http://localhost:5000/api/clients/${id}`);
-      const response = await fetch(`http://localhost:5000/api/clients/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        credentials: 'include'  // Include cookies if using session-based auth
-      });
-
-      console.log('Response status:', response.status);
-      
-      let data;
-      try {
-        data = await response.json();
-        console.log('Response data:', data);
-      } catch (jsonError) {
-        console.error('Error parsing JSON response:', jsonError);
-        throw new Error('Invalid response from server');
-      }
-      
-      if (!response.ok) {
-        console.error('Delete failed with status:', response.status);
-        throw new Error(data.message || `Failed to delete client. Status: ${response.status}`);
-      }
-
-      console.log('Delete successful, showing success message');
-      toast.success(data.message || 'Client deleted successfully');
+      const response = await api.delete(`/clients/${id}`);
+      toast.success(response.data?.message || 'Client deleted successfully');
       
       // Navigate after a short delay to show the success message
       setTimeout(() => {
@@ -93,12 +43,8 @@ const ClientDetails = () => {
         navigate('/clients');
       }, 1000);
     } catch (error) {
-      console.error('Error in handleDelete:', {
-        error: error.toString(),
-        message: error.message,
-        stack: error.stack
-      });
-      toast.error(error.message || 'An error occurred while deleting the client');
+      console.error('Error deleting client:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete client');
     }
   };
 
