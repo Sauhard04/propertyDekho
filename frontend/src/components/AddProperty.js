@@ -102,8 +102,8 @@ const AddProperty = () => {
   };
 
   return (
-    <div className="add-property-container">
-      <div className="add-property">
+    <div className="add-property-container add-property-bg">
+      <div className="property-form-container">
         <h2>Add New Property</h2>
       
       {message.text && (

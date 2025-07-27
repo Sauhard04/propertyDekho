@@ -8,12 +8,16 @@ html, body, #root {
 .add-property-container {
   min-height: 100vh;
   padding: 2rem 1rem;
-  background: url('../../public/images/add_property.webp') no-repeat center center fixed;
   background-size: cover;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.add-property-bg {
+  background: url('../../public/images/add_property.webp') no-repeat center center fixed;
+  background-size: cover;
 }
 
 .add-property-container::before {
