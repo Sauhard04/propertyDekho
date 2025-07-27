@@ -8,7 +8,7 @@ html, body, #root {
 .add-property-container {
   min-height: 100vh;
   padding: 2rem 1rem;
-  background: url('C:\Users\DELL\Desktop\propertyDekho-main\Desktop\propertyDekho-main\frontend\public\images\add_property.webp') no-repeat center center fixed;
+  background: url('../../public/images/add_property.webp') no-repeat center center fixed;
   background-size: cover;
   position: relative;
   display: flex;
