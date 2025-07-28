@@ -15,7 +15,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('C:\Users\DELL\Desktop\propertyDekho-main\Desktop\propertyDekho-main\frontend\public\images\edit.jpg') center/cover no-repeat fixed;
+  background: url('../../public/images/edit.jpg') center/cover no-repeat fixed;
   filter: brightness(0.3);
   z-index: -1;
 }
