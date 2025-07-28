@@ -10,13 +10,21 @@ exports.register = async (req, res, next) => {
 
     // Create user
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
       password,
       role: 'user' // Default role
     });
 
-    sendTokenResponse(user, 200, res);
+    // Prepare user data to send in response
+    const userData = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    };
+    
+    sendTokenResponse(user, 200, res, userData);
   } catch (err) {
     next(err);
   }
@@ -48,7 +56,15 @@ exports.login = async (req, res, next) => {
       return next(new ErrorResponse('Invalid credentials', 401));
     }
 
-    sendTokenResponse(user, 200, res);
+    // Prepare user data to send in response
+    const userData = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    };
+    
+    sendTokenResponse(user, 200, res, userData);
   } catch (err) {
     next(err);
   }
@@ -85,7 +101,7 @@ exports.logout = (req, res, next) => {
 };
 
 // Get token from model, create cookie and send response
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = (user, statusCode, res, userData = null) => {
   // Create token
   const token = user.getSignedJwtToken();
 
@@ -97,17 +113,18 @@ const sendTokenResponse = (user, statusCode, res) => {
     secure: process.env.NODE_ENV === 'production'
   };
 
+  const responseData = {
+    success: true,
+    token
+  };
+
+  // Include user data in the response if provided
+  if (userData) {
+    responseData.user = userData;
+  }
+
   res
     .status(statusCode)
     .cookie('token', token, options)
-    .json({
-      success: true,
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+    .json(responseData);
 };

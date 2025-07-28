@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
-import api from '../../services/api'; 
+import { register } from '../../services/api'; 
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -50,6 +50,13 @@ const Signup = () => {
     setIsLoading(true);
     setError('');
 
+    // Form validation
+    if (!name || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
+      setIsLoading(false);
+      return;
+    }
+
     if (!validateEmail(email)) {
       setError('Please enter a valid email address');
       setIsLoading(false);
@@ -62,6 +69,12 @@ const Signup = () => {
       return;
     }
 
+    if (!validatePassword(password)) {
+      setError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      setIsLoading(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
@@ -70,21 +83,29 @@ const Signup = () => {
 
     try {
       console.log('Attempting registration with:', { name, email });
-      const response = await api.post('/auth/register', {
-        name,
-        email,
-        password,
-        role: 'user' // or 'admin' if needed
+      const response = await register({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+        role: 'user' // Default role
       });
       
-      // Handle successful registration
-      console.log('Registration successful:', response.data);
+      // Registration successful, redirect to login page
+      console.log('Registration successful, redirecting to login');
       
-      // Redirect to login page or auto-login
-      navigate('/login');
+      // Show success message that will be displayed on the login page
+      navigate('/login', { 
+        state: { 
+          registrationSuccess: true,
+          message: 'Registration successful! Please log in with your new credentials.'
+        } 
+      });
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      const errorMessage = err.response?.data?.message || 
+                         err.message || 
+                         'Registration failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

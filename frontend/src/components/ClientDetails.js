@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './ClientDetails.css';
-import api from '../../services/api';
+import { getClient, deleteClient } from '../../services/api';
 
 const ClientDetails = () => {
   const { id } = useParams();
@@ -14,7 +14,7 @@ const ClientDetails = () => {
   useEffect(() => {
     const fetchClient = async () => {
       try {
-        const response = await api.get(`/clients/${id}`);
+        const response = await getClient(id);
         setClient(response.data);
       } catch (err) {
         console.error('Error fetching client:', err);
@@ -34,7 +34,7 @@ const ClientDetails = () => {
     }
 
     try {
-      const response = await api.delete(`/clients/${id}`);
+      const response = await deleteClient(id);
       toast.success(response.data?.message || 'Client deleted successfully');
       
       // Navigate after a short delay to show the success message

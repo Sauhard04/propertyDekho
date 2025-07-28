@@ -31,6 +31,29 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Response error:', error.response.status, error.response.data);
+      
+      // Handle 401 Unauthorized
+      if (error.response.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received:', error.request);
+    } else {
+      // Something happened in setting up the request
+      console.error('Request error:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access (e.g., redirect to login)
       console.error('Unauthorized access - please log in');
@@ -64,6 +87,7 @@ export const deleteMeeting = (id) => api.delete(`/meetings/${id}`);
 export const login = (credentials) => api.post('/auth/login', credentials);
 export const register = (userData) => api.post('/auth/register', userData);
 
+// Export all API methods as a single object
 const apiService = {
   // Properties
   getProperties,
@@ -92,3 +116,6 @@ const apiService = {
 };
 
 export default apiService;
+
+// Export the api instance for direct usage when needed
+export { api };
