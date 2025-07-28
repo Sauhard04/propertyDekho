@@ -64,7 +64,7 @@ const ClientDetails = () => {
   const containerStyle = {
     minHeight: '100vh',
     padding: '2rem 1rem',
-    backgroundImage: 'url(' + process.env.PUBLIC_URL + '/images/client_page.jpg)',
+    backgroundImage: `url(${process.env.PUBLIC_URL}/images/client_page.jpg)`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundAttachment: 'fixed',
