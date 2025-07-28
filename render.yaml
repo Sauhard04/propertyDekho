@@ -5,7 +5,7 @@ services:
     env: node
     build:
       path: ./backend
-      command: "npm install && node server.js"
+      command: "npm install"
     envVars:
       - key: MONGODB_URI
         fromDatabase:
@@ -27,14 +27,13 @@ services:
     staticPublishPath: "./build"
     envVars:
       - key: REACT_APP_API_URL
-        sync: false  # This will be set to the backend URL after deployment
+        sync: false
     routes:
       - type: rewrite
         source: "/*"
         destination: "/index.html"
     plan: free
 
-# Database
 databases:
   - name: propertydekhodb
     databaseName: propertyDekho
