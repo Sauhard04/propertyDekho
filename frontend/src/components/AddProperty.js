@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { createProperty } from '../services/api';
 import './AddProperty.css';
+// Image is in the public folder, so we can reference it directly
+const backgroundImage = '/images/add_property.webp';
 
 const AddProperty = () => {
   const [formData, setFormData] = useState({
@@ -101,8 +103,19 @@ const AddProperty = () => {
     }
   };
 
+  const containerStyle = {
+    minHeight: '100vh',
+    padding: '2rem 1rem',
+    background: `url(${backgroundImage}) no-repeat center center fixed`,
+    backgroundSize: 'cover',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  };
+
   return (
-    <div className="add-property-container add-property-bg">
+    <div style={containerStyle}>
       <div className="property-form-container">
         <h2>Add New Property</h2>
       
