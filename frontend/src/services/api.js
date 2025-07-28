@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-// Use environment variable if available, otherwise use local development server
-const API_URL = (process.env.REACT_APP_API_URL || 'https://propertydekho-6tu7.onrender.com') + '/api';
+// Use environment variable if available, otherwise use production URL
+const BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000' 
+  : 'https://propertydekho-6tu7.onrender.com';
+
+const API_URL = `${BASE_URL}/api`;
 
 // Create axios instance with base URL
 const api = axios.create({
