@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 // Components
@@ -10,6 +12,7 @@ import PropertyDetails from './components/PropertyDetails';
 import AddProperty from './components/AddProperty';
 import EditProperty from './components/EditProperty';
 import ClientManager from './components/ClientManager';
+import MyListings from './components/MyListings';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 
@@ -91,7 +94,7 @@ function App() {
           />
           
           <Route
-            path="/properties/add"
+            path="/AddProperty"
             element={
               <ProtectedRoute>
                 <Layout>
@@ -124,6 +127,17 @@ function App() {
           />
           
           <Route
+            path="/my-listings"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <MyListings />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
             path="/clients"
             element={
               <ProtectedRoute>
@@ -137,6 +151,17 @@ function App() {
           {/* 404 Route */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </div>
     </Router>
   );

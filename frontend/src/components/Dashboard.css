@@ -1,14 +1,13 @@
-/* Base styles */
-* {
-  margin: 0;
-  padding: 0;
+/* Dashboard Component Base styles */
+.dashboard-container * {
   box-sizing: border-box;
 }
 
-body {
+.dashboard-container {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -16,8 +15,8 @@ body {
   overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Video Background Container */
-.video-background {
+/* Dashboard Component Video Background Container */
+.dashboard-container .video-background {
   position: fixed;
   top: 0;
   left: 0;
@@ -30,8 +29,8 @@ body {
   background: #000; /* Fallback color */
 }
 
-/* Remove any conflicting styles from parent elements */
-body, html {
+/* Dashboard specific styles */
+.dashboard-container {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -39,8 +38,8 @@ body, html {
   height: 100%;
 }
 
-/* Ensure the video is not being affected by parent elements */
-* {
+/* Ensure the dashboard elements have proper box-sizing */
+.dashboard-container * {
   box-sizing: border-box;
 }
 
@@ -161,14 +160,15 @@ body, html {
   width: 100%;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, 
+  background: linear-gradient(
+    135deg,
     rgba(255, 255, 255, 0.95) 0%,
     rgba(240, 249, 255, 0.95) 50%,
-    rgba(236, 253, 245, 0.95) 100%);
+    rgba(236, 253, 245, 0.95) 100%
+  );
   border-radius: 50px;
   padding: 0.8rem 2rem 0.8rem 5.5rem;
-  box-shadow: 
-    0 10px 25px -5px rgba(0, 0, 0, 0.08),
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08),
     0 10px 10px -5px rgba(0, 0, 0, 0.02);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid rgba(20, 17, 17, 0.5);
@@ -177,16 +177,18 @@ body, html {
 }
 
 .search-box::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, 
+  background: linear-gradient(
+    135deg,
     rgba(224, 242, 254, 0.4) 0%,
     rgba(186, 230, 253, 0.3) 50%,
-    rgba(204, 251, 241, 0.4) 100%);
+    rgba(204, 251, 241, 0.4) 100%
+  );
   opacity: 0.7;
   transition: all 0.5s ease;
   z-index: -1;
@@ -195,23 +197,26 @@ body, html {
 
 .search-box:focus-within {
   transform: translateY(-2px);
-  box-shadow: 
-    0 15px 30px -5px rgba(56, 178, 172, 0.15),
+  box-shadow: 0 15px 30px -5px rgba(56, 178, 172, 0.15),
     0 10px 15px -5px rgba(56, 178, 172, 0.1);
   border-color: rgba(167, 243, 208, 0.7);
-  background: linear-gradient(135deg, 
+  background: linear-gradient(
+    135deg,
     rgba(255, 255, 255, 0.98) 0%,
     rgba(240, 249, 255, 0.98) 50%,
-    rgba(236, 253, 245, 0.98) 100%);
+    rgba(236, 253, 245, 0.98) 100%
+  );
 }
 
 .search-box:focus-within::before {
   opacity: 0.9;
   filter: blur(4px);
-  background: linear-gradient(135deg, 
+  background: linear-gradient(
+    135deg,
     rgba(186, 230, 253, 0.6) 0%,
     rgba(224, 242, 254, 0.5) 50%,
-    rgba(204, 251, 241, 0.6) 100%);
+    rgba(204, 251, 241, 0.6) 100%
+  );
 }
 
 .search-box:focus-within {
@@ -298,8 +303,8 @@ body, html {
 }
 
 .search-input::placeholder {
-  color: #888;  /* Light gray color for placeholder text */
-  opacity: 1;  /* Ensure full opacity */
+  color: #888; /* Light gray color for placeholder text */
+  opacity: 1; /* Ensure full opacity */
 }
 
 .search-input:focus {
@@ -314,7 +319,8 @@ body, html {
   right: 0;
   background: white;
   border-radius: 0 0 12px 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   z-index: 1000;
   max-height: 400px;
   overflow-y: auto;
@@ -339,7 +345,7 @@ body, html {
   margin-bottom: 0.25rem;
 }
 
-.property-details {
+.dashboard-container .property-details {
   display: flex;
   gap: 1rem;
   font-size: 0.875rem;
@@ -347,7 +353,7 @@ body, html {
 }
 
 .property-location::before {
-  content: '📍 ';
+  content: "📍 ";
 }
 
 .property-type {
@@ -374,23 +380,22 @@ body, html {
   margin-bottom: 0.3rem;
 }
 
-.property-details {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.9rem;
-  color: #666;
-}
-
 .property-location::after {
-  content: '•';
+  content: "•";
   margin-left: 0.8rem;
   color: #ddd;
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* Video Background */
@@ -531,10 +536,18 @@ body, html {
   color: white;
 }
 
-.stat-card.total .stat-icon { background: #4a90e2; }
-.stat-card.available .stat-icon { background: #2ecc71; }
-.stat-card.sold .stat-icon { background: #e74c3c; }
-.stat-card.clients .stat-icon { background: #9b59b6; }
+.stat-card.total .stat-icon {
+  background: #4a90e2;
+}
+.stat-card.available .stat-icon {
+  background: #2ecc71;
+}
+.stat-card.sold .stat-icon {
+  background: #e74c3c;
+}
+.stat-card.clients .stat-icon {
+  background: #9b59b6;
+}
 
 /* Status Badges */
 .status-badge {
@@ -618,15 +631,15 @@ body, html {
   .footer-container {
     padding: 0 10px;
   }
-  
+
   .footer-item {
     padding: 0.5rem 0.5rem;
   }
-  
+
   .footer-icon {
     font-size: 1.2rem;
   }
-  
+
   .footer-item span {
     font-size: 0.75rem;
   }
@@ -668,4 +681,4 @@ body, html {
 }
 
 /* Add Font Awesome for the search icon */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");

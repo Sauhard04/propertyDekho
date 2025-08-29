@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Use environment variable if available, otherwise use production URL
 const BASE_URL = window.location.hostname === 'localhost' 
@@ -14,7 +16,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Include credentials for cookies if using sessions
-  timeout: 10000 // Increase timeout to 10 seconds
+  timeout: 30000 // Increased timeout to 30 seconds
 });
 
 // Request interceptor to add auth token if available
@@ -22,8 +24,14 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
+      config.headers['x-auth-token'] = token;
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Add timestamp to prevent caching
+    config.params = {
+      ...config.params,
+      _t: Date.now()
+    };
     return config;
   },
   (error) => {
@@ -31,36 +39,32 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle common errors
+// Single response interceptor with comprehensive error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
+    if (error.code === 'ECONNABORTED') {
+      console.error('Request timeout - Please check your internet connection');
+      toast.error('Request timed out. Please check your internet connection and try again.');
+    } else if (error.response) {
+      // Server responded with a status code outside 2xx
       console.error('Response error:', error.response.status, error.response.data);
       
-      // Handle 401 Unauthorized
       if (error.response.status === 401) {
+        // Handle unauthorized
         localStorage.removeItem('token');
         window.location.href = '/login';
+      } else if (error.response.status >= 500) {
+        toast.error('Server error. Please try again later.');
       }
     } else if (error.request) {
-      // The request was made but no response was received
+      // No response received
       console.error('No response received:', error.request);
+      toast.error('No response from server. Please check your internet connection.');
     } else {
-      // Something happened in setting up the request
+      // Request setup error
       console.error('Request error:', error.message);
-    }
-    return Promise.reject(error);
-  }
-);
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access (e.g., redirect to login)
-      console.error('Unauthorized access - please log in');
+      toast.error(`Request error: ${error.message}`);
     }
     return Promise.reject(error);
   }
@@ -69,6 +73,7 @@ api.interceptors.response.use(
 // Properties API
 export const getProperties = () => api.get('/properties');
 export const getProperty = (id) => api.get(`/properties/${id}`);
+export const getMyListings = () => api.get('/properties/my-listings');
 export const createProperty = (propertyData) => api.post('/properties', propertyData);
 export const updateProperty = (id, propertyData) => api.patch(`/properties/${id}`, propertyData);
 export const deleteProperty = (id) => api.delete(`/properties/${id}`);
@@ -96,6 +101,7 @@ const apiService = {
   // Properties
   getProperties,
   getProperty,
+  getMyListings,
   createProperty,
   updateProperty,
   deleteProperty,

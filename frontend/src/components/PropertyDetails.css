@@ -1,4 +1,4 @@
-.property-details {
+.property-details-container .property-details {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
@@ -9,14 +9,14 @@
   z-index: 1;
 }
 
-.property-details::before {
-  content: '';
+.property-details-container .property-details::before {
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('../../public/images/view.jpg') no-repeat center center/cover;
+  background: white;
   filter: brightness(0.7);
   z-index: -1;
 }
@@ -295,7 +295,7 @@
 }
 
 .description-line:before {
-  content: '•';
+  content: "•";
   position: absolute;
   left: 0;
   color: #4299e1;
@@ -379,19 +379,19 @@
   .property-header h1 {
     font-size: 1.75rem;
   }
-  
+
   .property-info h2 {
     font-size: 1.75rem;
   }
-  
+
   .property-meta {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .property-actions {
     flex-direction: column;
   }
-  
+
   .btn-edit {
     width: 100%;
   }

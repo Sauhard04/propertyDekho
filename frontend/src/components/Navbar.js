@@ -49,9 +49,12 @@ function Navbar() {
                 </Link>
                 <div className="dropdown-content">
                   <Link to="/properties">View All</Link>
-                  <Link to="/properties/add">Add New</Link>
+                  
                 </div>
               </div>
+              <Link to="/my-listings" className={isActive('/my-listings')}>
+                My Listings
+              </Link>
               <Link to="/clients" className={isActive('/clients')}>
                 Clients
               </Link>

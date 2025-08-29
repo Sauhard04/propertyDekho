@@ -20,6 +20,11 @@ const propertySchema = new mongoose.Schema({
     type: String, 
     enum: ['Available', 'Under Negotiation', 'Sold'], 
     default: 'Available' 
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false // Make it optional for existing properties
   }
 }, { timestamps: true });
 
