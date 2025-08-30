@@ -81,6 +81,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          // In your route definitions, add:
+          <Route path="/edit-property/:id" element={<EditProperty />} />
           
           <Route
             path="/properties"

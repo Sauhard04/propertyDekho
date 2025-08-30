@@ -12,7 +12,6 @@ function MyListings() {
   const [error, setError] = useState(null);
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterType, setFilterType] = useState('All');
-  const [assigningOwnership, setAssigningOwnership] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
@@ -37,29 +36,6 @@ function MyListings() {
         } else {
           toast.error('Failed to delete property. Please try again.');
         }
-      }
-    }
-  };
-
-  // Assign ownership to existing properties
-  const handleAssignOwnership = async () => {
-    if (window.confirm('Do you want to claim ownership of existing properties that have no owner? This will assign you as the owner of those properties.')) {
-      try {
-        setAssigningOwnership(true);
-        const response = await api.post('/properties/assign-ownership');
-        
-        if (response.data.modifiedCount > 0) {
-          toast.success(`Successfully claimed ownership of ${response.data.modifiedCount} properties!`);
-          // Refresh the listings
-          await fetchMyListings();
-        } else {
-          toast.info('No properties available to claim ownership.');
-        }
-      } catch (err) {
-        console.error('Error assigning ownership:', err);
-        toast.error('Failed to assign ownership. Please try again.');
-      } finally {
-        setAssigningOwnership(false);
       }
     }
   };
@@ -118,22 +94,22 @@ function MyListings() {
   const fetchMyListings = async () => {
     try {
       setLoading(true);
-      console.log('Fetching all properties...');
+      console.log('Fetching my properties...');
       
-      // Try to get all properties first to test the connection
-      const response = await api.get('/properties');
-      console.log('All properties:', response.data);
+      // Use the /properties/my-listings endpoint to get only the current user's properties
+      const response = await api.get('/properties/my-listings');
+      console.log('My properties:', response.data);
       
       // Set the properties directly
       setProperties(response.data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching properties:', {
+      console.error('Error fetching my properties:', {
         message: err.message,
         response: err.response?.data,
         status: err.response?.status
       });
-      setError('Failed to load properties. Please check console for details.');
+      setError('Failed to load your properties. Please check console for details.');
     } finally {
       setLoading(false);
     }
@@ -282,14 +258,6 @@ function MyListings() {
                 <Link to="/AddProperty" className="add-first-property-btn">
                   <FaPlus /> Add Your First Property
                 </Link>
-                <button 
-                  onClick={handleAssignOwnership}
-                  className="assign-ownership-btn"
-                  disabled={assigningOwnership}
-                >
-                  <FaUserPlus /> 
-                  {assigningOwnership ? 'Claiming...' : 'Claim Existing Properties'}
-                </button>
               </div>
             )}
             {properties.length > 0 && (
@@ -452,14 +420,6 @@ function MyListings() {
                       >
                         <FaEye /> View
                       </Link>
-                      
-                      <button 
-                        onClick={() => startEditing(property)}
-                        className="action-btn edit-btn"
-                        title="Quick Edit"
-                      >
-                        <FaEdit /> Edit
-                      </button>
                       
                       <button 
                         onClick={() => handleDelete(property._id, property.title)}
