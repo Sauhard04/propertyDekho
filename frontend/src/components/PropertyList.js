@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { getProperties, deleteProperty } from '../services/api';
+import { getProperties } from '../services/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './PropertyList.css';
@@ -94,20 +94,6 @@ function PropertyList() {
     }
   };
 
-  // Delete property
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this property?')) {
-      try {
-        await deleteProperty(id);
-        setProperties(properties.filter(property => property._id !== id));
-        toast.success('Property deleted successfully!');
-      } catch (err) {
-        console.error('Error deleting property:', err);
-        toast.error('Failed to delete property. Please try again.');
-      }
-    }
-  };
-
   // Filter properties based on search and filters
   const filteredProperties = properties.filter(property => {
     const searchLower = searchTerm.toLowerCase();
@@ -150,6 +136,73 @@ function PropertyList() {
     if (!status) return 'status-badge';
     const statusLower = status.toLowerCase().replace(' ', '-');
     return `status-badge status-${statusLower}`;
+  };
+
+  const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [enquiryForm, setEnquiryForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: 'I am interested in this property. Please contact me with more details.'
+  });
+
+  // Handle enquiry form input change
+  const handleEnquiryChange = (e) => {
+    const { name, value } = e.target;
+    setEnquiryForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle enquiry form submission
+  const handleEnquirySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      console.log('Sending enquiry for property:', selectedProperty._id);
+      const response = await fetch(`http://localhost:5000/api/enquiries/${selectedProperty._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: enquiryForm.name,
+          email: enquiryForm.email,
+          phone: enquiryForm.phone,
+          message: enquiryForm.message
+        })
+      });
+
+      console.log('Response status:', response.status);
+      const data = await response.json().catch(() => ({}));
+      console.log('Response data:', data);
+      
+      if (!response.ok) {
+        const errorMessage = data.message || `HTTP error! status: ${response.status}`;
+        console.error('Enquiry failed:', errorMessage);
+        throw new Error(errorMessage);
+      }
+      
+      toast.success('Your enquiry has been sent to the property owner!');
+      
+      // Reset form and close modal
+      setEnquiryForm({
+        name: '',
+        email: '',
+        phone: '',
+        message: 'I am interested in this property. Please contact me with more details.'
+      });
+      setShowEnquiryModal(false);
+    } catch (error) {
+      console.error('Error in handleEnquirySubmit:', {
+        error: error.message,
+        stack: error.stack,
+        selectedProperty: selectedProperty?._id,
+        enquiryForm: { ...enquiryForm, message: 'Message hidden for privacy' }
+      });
+      toast.error(`Failed to send enquiry: ${error.message}`);
+    }
   };
 
   if (loading) {
@@ -294,10 +347,13 @@ function PropertyList() {
                         View Details
                       </button>
                       <button 
-                        onClick={() => handleDelete(property._id)}
-                        className="delete-btn"
+                        onClick={() => {
+                          setSelectedProperty(property);
+                          setShowEnquiryModal(true);
+                        }}
+                        className="enquire-btn"
                       >
-                        Delete
+                        I'm Interested
                       </button>
                     </div>
                   </div>
@@ -342,6 +398,65 @@ function PropertyList() {
           )}
         </div>
       </div>
+      
+      {/* Enquiry Modal */}
+      {showEnquiryModal && selectedProperty && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Enquire about {selectedProperty.title}</h2>
+            <form onSubmit={handleEnquirySubmit}>
+              <div className="form-group">
+                <label>Your Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={enquiryForm.name}
+                  onChange={handleEnquiryChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={enquiryForm.email}
+                  onChange={handleEnquiryChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={enquiryForm.phone}
+                  onChange={handleEnquiryChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Message</label>
+                <textarea
+                  name="message"
+                  value={enquiryForm.message}
+                  onChange={handleEnquiryChange}
+                  rows="4"
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowEnquiryModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn">
+                  Send Enquiry
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

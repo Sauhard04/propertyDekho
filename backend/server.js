@@ -111,6 +111,7 @@ app.use('/api/auth', require('./routes/testAuth'));  // Using test auth routes
 app.use('/api/properties', require('./routes/properties'));
 app.use('/api/clients', require('./routes/clients'));
 app.use('/api/meetings', require('./routes/meetings'));
+app.use('/api/enquiries', require('./routes/enquiry'));  // Add this line for enquiry routes
 
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0'; // Listen on all network interfaces
