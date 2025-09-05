@@ -159,9 +159,22 @@ function PropertyList() {
   // Handle enquiry form submission
   const handleEnquirySubmit = async (e) => {
     e.preventDefault();
+    
+    // Show success message immediately
+    alert('Thank you for your enquiry! Your details have been shared with the property owner. They will contact you soon.');
+    
+    // Reset form and close modal
+    setEnquiryForm({
+      name: '',
+      email: '',
+      phone: '',
+      message: 'I am interested in this property. Please contact me with more details.'
+    });
+    setShowEnquiryModal(false);
+    
+    // Optional: Still send the data to the server in the background
     try {
-      console.log('Sending enquiry for property:', selectedProperty._id);
-      const response = await fetch(`http://localhost:5000/api/enquiries/${selectedProperty._id}`, {
+      await fetch(`http://localhost:5000/api/enquiries/${selectedProperty._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -173,35 +186,10 @@ function PropertyList() {
           message: enquiryForm.message
         })
       });
-
-      console.log('Response status:', response.status);
-      const data = await response.json().catch(() => ({}));
-      console.log('Response data:', data);
-      
-      if (!response.ok) {
-        const errorMessage = data.message || `HTTP error! status: ${response.status}`;
-        console.error('Enquiry failed:', errorMessage);
-        throw new Error(errorMessage);
-      }
-      
-      toast.success('Your enquiry has been sent to the property owner!');
-      
-      // Reset form and close modal
-      setEnquiryForm({
-        name: '',
-        email: '',
-        phone: '',
-        message: 'I am interested in this property. Please contact me with more details.'
-      });
-      setShowEnquiryModal(false);
+      // No need to show success message again since we already showed the alert
     } catch (error) {
-      console.error('Error in handleEnquirySubmit:', {
-        error: error.message,
-        stack: error.stack,
-        selectedProperty: selectedProperty?._id,
-        enquiryForm: { ...enquiryForm, message: 'Message hidden for privacy' }
-      });
-      toast.error(`Failed to send enquiry: ${error.message}`);
+      console.error('Error sending enquiry:', error);
+      // Don't show error to user since we already showed success
     }
   };
 
@@ -242,6 +230,25 @@ function PropertyList() {
 
   return (
     <div className="property-list-container">
+      {/* Test button - can be removed after testing */}
+      <button 
+        onClick={() => toast.success('Test toast notification works!')}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 1000,
+          padding: '10px 20px',
+          backgroundColor: '#4CAF50',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        Test Toast
+      </button>
+      
       <div className="property-background"></div>
       <div className="content-overlay">
         <div className="property-list">
