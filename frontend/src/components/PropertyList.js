@@ -14,10 +14,20 @@ function PropertyList() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterType, setFilterType] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const [propertiesPerPage] = useState(6);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const propertiesPerPage = 6;
   const searchRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get search term from URL on component mount and when location changes
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+      setShowSearchResults(true);
+    }
+  }, [location.search]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -38,23 +48,6 @@ function PropertyList() {
     if (searchTerm.trim() !== '') {
       setShowSearchResults(true);
     }
-  };
-
-  // Handle search term change
-  const handleSearchChange = (e) => {
-    const newSearchTerm = e.target.value;
-    setSearchTerm(newSearchTerm);
-    setShowSearchResults(newSearchTerm.trim() !== '');
-    setCurrentPage(1);
-    
-    // Update URL
-    const params = new URLSearchParams(location.search);
-    if (newSearchTerm.trim()) {
-      params.set('search', newSearchTerm);
-    } else {
-      params.delete('search');
-    }
-    navigate(`?${params.toString()}`, { replace: true });
   };
 
   // Fetch properties from API
@@ -94,13 +87,45 @@ function PropertyList() {
     }
   };
 
+  // Handle search term change
+  const handleSearchChange = (e) => {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+    setShowSearchResults(newSearchTerm.trim() !== '');
+    setCurrentPage(1);
+    
+    // Update URL without page reload
+    const params = new URLSearchParams(location.search);
+    if (newSearchTerm.trim()) {
+      params.set('search', newSearchTerm);
+    } else {
+      params.delete('search');
+    }
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
   // Filter properties based on search and filters
   const filteredProperties = properties.filter(property => {
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = property.title?.toLowerCase().includes(searchLower) ||
-                         property.location?.toLowerCase().includes(searchLower) ||
-                         property.type?.toLowerCase().includes(searchLower) ||
-                         property.status?.toLowerCase().includes(searchLower);
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    // If search term is empty, only apply filters
+    if (!searchLower) {
+      const matchesStatus = filterStatus === 'All' || property.status === filterStatus;
+      const matchesType = filterType === 'All' || property.type === filterType;
+      return matchesStatus && matchesType;
+    }
+
+    // Check if any field matches the search term
+    const matchesSearch = [
+      property.title?.toLowerCase(),
+      property.location?.toLowerCase(),
+      property.type?.toLowerCase(),
+      property.status?.toLowerCase(),
+      property.address?.city?.toLowerCase(),
+      property.address?.state?.toLowerCase(),
+      property.address?.street?.toLowerCase()
+    ].some(field => field?.includes(searchLower));
+
     const matchesStatus = filterStatus === 'All' || property.status === filterStatus;
     const matchesType = filterType === 'All' || property.type === filterType;
     

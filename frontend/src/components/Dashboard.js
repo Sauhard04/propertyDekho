@@ -14,7 +14,6 @@ const sampleProperties = [
 
 function Dashboard() {
   const videoRef = useRef(null);
-  const searchInputRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -34,22 +33,31 @@ function Dashboard() {
     }
   }, [searchTerm]);
 
+  // Handle search submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // Navigate to properties page with search query
+      navigate(`/properties?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
+  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  // Handle search input key down (for Enter key)
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && searchTerm.trim()) {
+      handleSearchSubmit(e);
+    }
   };
 
   const handlePropertySelect = (location) => {
     navigate(`/properties?search=${encodeURIComponent(location)}`);
     setSearchTerm('');
     setSearchResults([]);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && searchTerm.trim()) {
-      navigate(`/properties?search=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm('');
-      setSearchResults([]);
-    }
   };
 
   useEffect(() => {
@@ -81,49 +89,49 @@ function Dashboard() {
       <div className="content-wrapper">
         <h1 className="main-heading">Find Your Dream Property</h1>
         
-        <div className="search-container">
+        <form onSubmit={handleSearchSubmit} className="search-form">
           <div className="search-box">
-            <FaSearch className="search-icon" />
             <input
-              ref={searchInputRef}
               type="text"
-              placeholder="Search by location (e.g., Mumbai, Delhi, Goa)..."
+              placeholder="Search by location (e.g., Mathura, Delhi, Mumbai)..."
               value={searchTerm}
               onChange={handleSearchChange}
               onKeyDown={handleKeyDown}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
               className="search-input"
+              aria-label="Search properties by location"
             />
+            <button type="submit" className="search-button" aria-label="Search">
+              <FaSearch className="search-icon" />
+            </button>
           </div>
-          
-          {searchResults.length > 0 && isSearchFocused && (
-            <div className="search-results">
-              {searchResults.map(property => (
-                <div 
-                  key={property.id} 
-                  className="property-item"
-                  onClick={() => handlePropertySelect(property.location)}
-                >
-                  <div className="property-name">{property.name}</div>
-                  <div className="property-details">
-                    <span className="property-location">{property.location}</span>
-                    <span className="property-type">{property.type}</span>
-                  </div>
+        </form>
+        
+        {searchResults.length > 0 && isSearchFocused && (
+          <div className="search-results">
+            {searchResults.map(property => (
+              <div 
+                key={property.id} 
+                className="property-item"
+                onClick={() => handlePropertySelect(property.location)}
+              >
+                <div className="property-name">{property.name}</div>
+                <div className="property-details">
+                  <span className="property-location">{property.location}</span>
+                  <span className="property-type">{property.type}</span>
                 </div>
-              ))}
-              {searchTerm.trim() && (
-                <div 
-                  className="property-item view-all"
-                  onClick={() => handlePropertySelect(searchTerm.trim())}
-                >
-                  <div className="property-name">Search for "{searchTerm.trim()}"</div>
-                  <div className="property-details">View all matching properties</div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+            {searchTerm.trim() && (
+              <div 
+                className="property-item view-all"
+                onClick={() => handlePropertySelect(searchTerm.trim())}
+              >
+                <div className="property-name">Search for "{searchTerm.trim()}"</div>
+                <div className="property-details">View all matching properties</div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       
       <div className="video-background">
