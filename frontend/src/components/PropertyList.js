@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getProperties } from '../services/api';
 import { toast } from 'react-toastify';
@@ -144,7 +145,7 @@ function PropertyList() {
     name: '',
     email: '',
     phone: '',
-    message: 'I am interested in this property. Please contact me with more details.'
+    message: ''
   });
 
   // Handle enquiry form input change
@@ -160,48 +161,42 @@ function PropertyList() {
   const handleEnquirySubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Sending enquiry for property:', selectedProperty._id);
-      const response = await fetch(`http://localhost:5000/api/enquiries/${selectedProperty._id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: enquiryForm.name,
-          email: enquiryForm.email,
-          phone: enquiryForm.phone,
-          message: enquiryForm.message
-        })
-      });
+      // EmailJS config
+      const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID || 'your_service_id';
+      const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'your_template_id';
+      const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'your_public_key';
 
-      console.log('Response status:', response.status);
-      const data = await response.json().catch(() => ({}));
-      console.log('Response data:', data);
-      
-      if (!response.ok) {
-        const errorMessage = data.message || `HTTP error! status: ${response.status}`;
-        console.error('Enquiry failed:', errorMessage);
-        throw new Error(errorMessage);
-      }
-      
-      toast.success('Your enquiry has been sent to the property owner!');
-      
+      const templateParams = {
+        title: selectedProperty.title,
+        name: enquiryForm.name,
+        email: enquiryForm.email,
+        message: enquiryForm.message,
+      };
+
+      // Send enquiry to property owner
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      toast.success('Your enquiry email has been sent to the property owner!');
+
+      // Send acknowledgement to user (auto-reply)
+      const autoReplyTemplateId = 'autoreply';
+      const autoReplyParams = {
+        name: enquiryForm.name,
+        email: enquiryForm.email,
+        title: selectedProperty.title,
+      };
+      await emailjs.send(serviceId, autoReplyTemplateId, autoReplyParams, publicKey);
+
       // Reset form and close modal
       setEnquiryForm({
         name: '',
         email: '',
         phone: '',
-        message: 'I am interested in this property. Please contact me with more details.'
+        message: ''
       });
       setShowEnquiryModal(false);
     } catch (error) {
-      console.error('Error in handleEnquirySubmit:', {
-        error: error.message,
-        stack: error.stack,
-        selectedProperty: selectedProperty?._id,
-        enquiryForm: { ...enquiryForm, message: 'Message hidden for privacy' }
-      });
-      toast.error(`Failed to send enquiry: ${error.message}`);
+      console.error('Error sending email via EmailJS:', error);
+      toast.error(`Failed to send enquiry email: ${error.text || error.message}`);
     }
   };
 
