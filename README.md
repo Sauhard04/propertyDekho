@@ -14,7 +14,7 @@ PropertyDekho is a modern, full-stack property management platform designed to s
 ## Screenshots
 
 ### Dashboard
-![Dashboard](public/images/dashboard.png)
+![Dashboard](frontend/public/images/dashboard.png)
 
 ### Client Management
 ![Client Management](public/images/clientmanage.png)
