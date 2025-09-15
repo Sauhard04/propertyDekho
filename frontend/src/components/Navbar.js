@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Navbar.css';
+import logo from '../assets/logo.png';
 
 function Navbar() {
   const location = useLocation();
@@ -33,7 +35,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="navbar-brand">
         <Link to="/">
-          <h1>PropertyDekho</h1>
+          <img src={logo} alt="PropertyDekho Logo" style={{ height: '60px', width: 'auto', display: 'block' }} />
         </Link>
       </div>
       <div className="navbar-right">
