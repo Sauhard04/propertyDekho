@@ -49,10 +49,6 @@ function Navbar() {
                 <Link to="/properties" className={isActive('/properties')}>
                   Properties
                 </Link>
-                <div className="dropdown-content">
-                  <Link to="/properties">View All</Link>
-                  
-                </div>
               </div>
               <Link to="/my-listings" className={isActive('/my-listings')}>
                 My Listings

@@ -5,6 +5,7 @@ import { getProperties } from '../services/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './PropertyList.css';
+import LogoSplash from './LogoSplash';
 
 function PropertyList() {
   const [properties, setProperties] = useState([]);
@@ -201,17 +202,7 @@ function PropertyList() {
   };
 
   if (loading) {
-    return (
-      <div className="property-list-container">
-        <div className="property-background"></div>
-        <div className="content-overlay">
-          <div className="property-list">
-            <h2>Property Listings</h2>
-            <div className="loading">Loading properties...</div>
-          </div>
-        </div>
-      </div>
-    );
+    return <LogoSplash />;
   }
 
   if (error) {

@@ -178,9 +178,8 @@
 
 .search-box:focus-within {
   box-shadow: 0 8px 32px rgba(74, 144, 226, 0.13);
-  border-color: #4a90e2;
-  background: #fff;
-}
+  border-color: #4ae2e2;
+  }
 
 .search-box:focus-within::before {
   opacity: 0.9;
