@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2F1aGFyZDA0IiwiYSI6ImNtZm00a3FkZDA5NzkyanFzNWtqYWloa2gifQ.xg8zBaf8sLD87nx7MLChfg';
+const MAPBOX_TOKEN = 'write your api key here';
 
 const MapboxStaticMap = ({ coordinates }) => {
   const mapContainer = useRef(null);
