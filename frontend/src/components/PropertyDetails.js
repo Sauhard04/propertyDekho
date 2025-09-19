@@ -252,15 +252,6 @@ const PropertyDetails = () => {
               </div>
             )}
             
-            <div className="property-actions">
-              <Link 
-                to={`/properties/edit/${property._id}`} 
-                className="btn btn-edit"
-              >
-                <FaEdit /> Edit Property
-              </Link>
-            </div>
-            
             <div className="property-description">
               <h3>About This Property</h3>
               <div className="description-content">

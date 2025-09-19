@@ -387,6 +387,14 @@ function MyListings() {
                         <FaEye /> View
                       </Link>
                       
+                      <Link 
+                        to={`/properties/edit/${property._id}`}
+                        className="action-btn edit-btn"
+                        title="Edit Property"
+                      >
+                        <FaEdit /> Edit
+                      </Link>
+                      
                       <button 
                         onClick={() => handleDelete(property._id, property.title)}
                         className="action-btn delete-btn"
